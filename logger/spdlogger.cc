@@ -67,8 +67,8 @@ void cb::logger::shutdown() {
      * If the logger is running in unit test mode (synchronous) then this is a
      * no-op.
      */
+    // file_logger.re;
     spdlog::details::registry::instance().shutdown();
-    file_logger.reset();
 }
 
 bool cb::logger::isInitialized() {

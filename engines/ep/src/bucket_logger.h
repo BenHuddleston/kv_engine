@@ -59,7 +59,7 @@ const std::string globalBucketLoggerName = "globalBucketLogger";
  * determine the bucket name to prefix. This is sufficient to handle the
  * majority of logging uses.
  * To simplify usage (so the caller doesn't have to explicitly call on the
- * globalBucketLogger object) EP_LOG_xxx() macros are provided - this also
+ * getGlobalBucketLogger() object) EP_LOG_xxx() macros are provided - this also
  * matches previous API to reduce code-churn in integrating spdlog.
  *
  * If a customised prefix is needed (for example for a DCP ActiveStream object
@@ -149,7 +149,7 @@ public:
     /**
      * Informs the BucketLogger class of the current logging API.
      *
-     * Creates the globalBucketLogger.
+     * Creates the getGlobalBucketLogger().
      */
     static void setLoggerAPI(ServerLogIface* api);
 
@@ -234,19 +234,45 @@ private:
     spdlog::logger* spdLogger;
 };
 
+class BucketLoggerWrapper {
+public:
+    ~BucketLoggerWrapper() {
+        logger->unregister();
+    }
+
+    BucketLogger* operator->() {
+        return logger.get();
+    }
+
+    void create() {
+        if (!logger) {
+            recreate();
+        }
+    }
+
+    void recreate() {
+        auto tmp = BucketLogger::createBucketLogger(globalBucketLoggerName);
+        logger.swap(tmp);
+    }
+
+    std::shared_ptr<BucketLogger> logger;
+};
+
 // Global BucketLogger declaration for use in macros
 // This is a shared_ptr (not a unique_ptr as one might expect) as
 // the spdlog registry only deals with weak_ptrs, and we must register each
 // spdlogger we create to respect runtime verbosity changes
-extern std::shared_ptr<BucketLogger> globalBucketLogger;
+// extern BucketLoggerWrapper globalBucketLogger;
 
-// Convenience macros which call globalBucketLogger->log() with the given level
-// and arguments.
-#define EP_LOG_FMT(severity, ...)                           \
-    do {                                                    \
-        if (globalBucketLogger->should_log(severity)) {     \
-            globalBucketLogger->log(severity, __VA_ARGS__); \
-        }                                                   \
+BucketLoggerWrapper& getGlobalBucketLogger();
+
+// Convenience macros which call getGlobalBucketLogger()->log() with the given
+// level and arguments.
+#define EP_LOG_FMT(severity, ...)                                \
+    do {                                                         \
+        if (getGlobalBucketLogger()->should_log(severity)) {     \
+            getGlobalBucketLogger()->log(severity, __VA_ARGS__); \
+        }                                                        \
     } while (false)
 
 #define EP_LOG_TRACE(...) \

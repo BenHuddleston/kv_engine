@@ -29,7 +29,7 @@ BucketLogger::BucketLogger(const std::string& name, std::string p)
 }
 
 BucketLogger::~BucketLogger() {
-    unregister();
+    // unregister();
 }
 
 void BucketLogger::sink_it_(const spdlog::details::log_msg& msg) {
@@ -47,10 +47,13 @@ void BucketLogger::flush_() {
 void BucketLogger::setLoggerAPI(ServerLogIface* api) {
     BucketLogger::loggerAPI.store(api, std::memory_order_relaxed);
 
-    if (globalBucketLogger == nullptr) {
-        // Create the global BucketLogger
-        globalBucketLogger = createBucketLogger(globalBucketLoggerName);
-    }
+    getGlobalBucketLogger().create();
+
+    // if (getGlobalBucketLogger() == nullptr) {
+    // Create the global BucketLogger
+    // getGlobalBucketLogger() =
+    // {std::move(std::make_unique<BucketLogger>(*createBucketLogger(getGlobalBucketLogger()Name)))};
+    //}
 }
 
 std::shared_ptr<BucketLogger> BucketLogger::createBucketLogger(
@@ -110,4 +113,10 @@ ServerLogIface* BucketLogger::getServerLogIface() {
 
 std::atomic<ServerLogIface*> BucketLogger::loggerAPI;
 
-std::shared_ptr<BucketLogger> globalBucketLogger;
+// BucketLoggerWrapper globalBucketLogger;
+
+BucketLoggerWrapper& getGlobalBucketLogger() {
+    static auto logger = BucketLoggerWrapper();
+    logger.create();
+    return logger;
+}

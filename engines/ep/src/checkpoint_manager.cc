@@ -1072,7 +1072,7 @@ CheckpointManager::ItemsForCursor CheckpointManager::getItemsForCursor(
         }
     }
 
-    if (globalBucketLogger->should_log(spdlog::level::debug)) {
+    if (getGlobalBucketLogger()->should_log(spdlog::level::debug)) {
         std::stringstream ranges;
         for (const auto& range : result.ranges) {
             const auto hcs = range.highCompletedSeqno;

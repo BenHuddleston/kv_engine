@@ -22,14 +22,16 @@
 
 void BucketLoggerTest::SetUp() {
     // Store the oldLogLevel for tearDown
-    oldLogLevel = globalBucketLogger->level();
+    oldLogLevel = getGlobalBucketLogger()->level();
 
-    if (globalBucketLogger) {
-        globalBucketLogger->unregister();
-    }
+    //        if (getGlobalBucketLogger()) {
+    //            getGlobalBucketLogger()->unregister();
+    //        }
+    //        SpdloggerTest::SetUp();
+    //        getGlobalBucketLogger() =
+    //                BucketLogger::createBucketLogger(globalBucketLoggerName);
     SpdloggerTest::SetUp();
-    globalBucketLogger =
-            BucketLogger::createBucketLogger(globalBucketLoggerName);
+    // getGlobalBucketLogger().recreate();
 }
 
 void BucketLoggerTest::TearDown() {
@@ -41,16 +43,16 @@ void BucketLoggerTest::TearDown() {
     cb::logger::createConsoleLogger();
     get_mock_server_api()->log->set_level(oldLogLevel);
     get_mock_server_api()->log->get_spdlogger()->set_level(oldLogLevel);
-    globalBucketLogger =
-            BucketLogger::createBucketLogger(globalBucketLoggerName);
-    globalBucketLogger->set_level(oldLogLevel);
+    getGlobalBucketLogger().recreate();
+    //            BucketLogger::createBucketLogger(getGlobalBucketLogger()Name);
+    getGlobalBucketLogger()->set_level(oldLogLevel);
 }
 
 void BucketLoggerTest::setUpLogger() {
     SpdloggerTest::setUpLogger();
-    globalBucketLogger =
-            BucketLogger::createBucketLogger(globalBucketLoggerName);
-    globalBucketLogger->set_level(config.log_level);
+    getGlobalBucketLogger().recreate();
+    //            BucketLogger::createBucketLogger(getGlobalBucketLogger()Name);
+    getGlobalBucketLogger()->set_level(config.log_level);
 }
 
 /**
