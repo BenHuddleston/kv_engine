@@ -134,7 +134,7 @@ TEST_F(ObjectRegistrySpdlogTest, SpdlogMemoryTrackedCorrectly) {
     // should be the SIZE template parameter but we don't have access to that
     // so estimate as 50% of the object size.
     spdlog::details::async_msg msg;
-    const auto asyncMsgCapacity = sizeof(msg.raw) / 2;
+    const auto asyncMsgCapacity = sizeof(msg.payload) / 2;
     {
         auto logger = BucketLogger::createBucketLogger(testName);
         logger->warn("short+variable ({}) {} ",

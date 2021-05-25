@@ -79,8 +79,8 @@ custom_rotating_file_sink<Mutex>::custom_rotating_file_sink(
 template <class Mutex>
 void custom_rotating_file_sink<Mutex>::sink_it_(
         const spdlog::details::log_msg& msg) {
-    _current_size += msg.raw.size();
-    fmt::memory_buffer formatted;
+    _current_size += msg.payload.size();
+    spdlog::memory_buf_t formatted;
     formatter->format(msg, formatted);
     _file_helper->write(formatted);
 
@@ -114,15 +114,17 @@ void custom_rotating_file_sink<Mutex>::addHook(const std::string& hook) {
     msg.level = spdlog::level::info;
 
     // Append the hook to the msg
-    spdlog::details::fmt_helper::append_str(hook, msg.raw);
+
+    spdlog::memory_buf_t t;
+    spdlog::details::fmt_helper::append_string_view(hook, t);
 
     if (hook == openingLogfile) {
-        spdlog::details::fmt_helper::append_str(
+        spdlog::details::fmt_helper::append_string_view(
                 std::string(_file_helper->filename().data(),
                             _file_helper->filename().size()),
-                msg.raw);
+                t);
     }
-    fmt::memory_buffer formatted;
+    spdlog::memory_buf_t formatted;
     formatter->format(msg, formatted);
     _current_size += formatted.size();
 

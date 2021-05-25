@@ -176,7 +176,7 @@ public:
 
 protected:
     /// Overriden sink_it_ method to log via ServerAPI logger.
-    void sink_it_(spdlog::details::log_msg& msg) override;
+    void sink_it_(const spdlog::details::log_msg& msg) override;
 
     /// Overriden flush_ method to flush via the ServerAPI logger.
     void flush_() override;
